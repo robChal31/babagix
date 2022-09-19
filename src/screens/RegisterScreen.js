@@ -13,6 +13,8 @@ import { Icon } from "react-native-elements";
 import DropDownPicker from "react-native-dropdown-picker";
 import { useRegister } from "../../hooks/useRegister";
 import * as Location from "expo-location";
+import { useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 const RegisterScreen = ({ navigation }) => {
   const [username, setUsername] = useState("");
@@ -30,23 +32,41 @@ const RegisterScreen = ({ navigation }) => {
   const [errorMsg, setErrorMsg] = useState(null);
   const { register, error, loading } = useRegister();
 
-  useEffect(() => {
-    (async () => {
-      let { status } = await Location.requestForegroundPermissionsAsync();
-      if (status !== "granted") {
-        setErrorMsg("Permission to access location was denied");
-        return;
-      }
+  useFocusEffect(
+    useCallback(() => {
+      setUsername("");
+      setEmail("");
+      setPhoneNumber("");
+      setPassword("");
+      setConfirmPassword("");
+      setValue("");
 
-      let location = await Location.getCurrentPositionAsync({});
-      setLocation(location);
-    })();
-  }, []);
+      const getLocation = async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setErrorMsg("Permission to access location was denied");
+          return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        setLocation(location);
+      };
+      getLocation();
+    }, [
+      setUsername,
+      setEmail,
+      setPassword,
+      setPhoneNumber,
+      setConfirmPassword,
+      setValue,
+      setLocation,
+    ])
+  );
 
   const handleRegister = () => {
     const data = {
       username,
-      email,
+      email: email.trim(),
       phoneNumber,
       password,
       confirmPassword,
@@ -54,11 +74,6 @@ const RegisterScreen = ({ navigation }) => {
       location,
     };
     register(data, navigation);
-    setUsername("");
-    setEmail("");
-    setConfirmPassword("");
-    setPassword("");
-    setPhoneNumber("");
   };
 
   return (
@@ -99,26 +114,31 @@ const RegisterScreen = ({ navigation }) => {
             placeholder={"Username"}
             enteredText={(e) => setUsername(e)}
             icon={"account-outline"}
+            value={username}
           />
           <Input
             placeholder={"E-mail"}
             enteredText={(e) => setEmail(e)}
             icon={"email-outline"}
+            value={email}
           />
           <Input
             placeholder={"No. telepon"}
             enteredText={(e) => setPhoneNumber(e)}
             icon={"phone-outline"}
+            value={phoneNumber}
           />
           <Input
             placeholder={"Kata sandi"}
             enteredText={(e) => setPassword(e)}
             icon={"lock-outline"}
+            value={password}
           />
           <Input
             placeholder={"Konfirmasi kata sandi"}
             enteredText={(e) => setConfirmPassword(e)}
             icon={"lock-outline"}
+            value={confirmPassword}
           />
 
           <View style={{ width: "75%" }}>

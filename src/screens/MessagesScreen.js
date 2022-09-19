@@ -6,33 +6,56 @@ import {
   FlatList,
   Text,
 } from "react-native";
-import { Icon } from "react-native-elements";
-import React, { useState } from "react";
 import { gap, colors, chatList } from "../global";
 import { Back, ChatList } from "../components";
+import { useEffect, useState } from "react";
+import baseUrl from "../../assets/common/baseUrl";
+import { useAuthContext } from "../../hooks/useAuthContext";
+import { useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
 const MessagesScreen = (props) => {
-  const [message, setMessage] = useState(chatList);
+  const [messages, setMessages] = useState([]);
+  const { user } = useAuthContext();
+
+  useFocusEffect(
+    useCallback(() => {
+      const getMessages = async () => {
+        const messagesList = await fetch(
+          `${baseUrl}/message/${user.user._id}`,
+          {
+            method: "GET",
+          }
+        );
+        const json = await messagesList.json();
+        if (messagesList.ok) {
+          setMessages(json);
+        }
+        if (!messagesList.ok) {
+          console.log(json);
+        }
+      };
+      getMessages();
+    }, [setMessages])
+  );
+
   return (
     <View style={styles.container}>
       <Back navigation={props.navigation} text={"Pesan masuk"} />
-      {message && (
+      {messages ? (
         <FlatList
-          data={message}
+          data={messages}
           renderItem={({ item, index }) => {
             return (
-              <ChatList
-                data={item}
-                navigation={(screen, data) => navigation.navigate(screen, data)}
-              />
+              <ChatList data={item} navigation={props.navigation.navigate} />
             );
           }}
           keyExtractor={(item, index) => {
-            return item.userId;
+            return index.toString();
           }}
         />
-      )}
+      ) : null}
     </View>
   );
 };

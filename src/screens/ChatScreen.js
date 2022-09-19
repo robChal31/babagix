@@ -7,31 +7,76 @@ import {
   FlatList,
   TextInput,
   Keyboard,
+  ActivityIndicator,
 } from "react-native";
-import React, { useRef, useState } from "react";
-import { colors, gap, shadow, chat } from "../global";
+import React, { useEffect, useRef, useState } from "react";
+import { colors, gap, shadow } from "../global";
 import { Icon } from "react-native-elements";
 import { Chat } from "../components";
+import baseUrl from "../../assets/common/baseUrl";
+import { useAuthContext } from "../../hooks/useAuthContext";
+import { useCallback } from "react";
+import { useFocusEffect } from "@react-navigation/native";
 
-const ChatScreen = ({ navigation, route }) => {
-  const [chatData, setChatData] = useState(chat);
+const ChatScreen = (props) => {
   const [inpChat, setInpChat] = useState("");
+  const [itemData, setItemData] = useState("");
+  const [chatData, setChatData] = useState("");
+  const { user } = useAuthContext();
+
   const flatListRef = useRef();
 
+  const item = props.route.params.data;
+
+  useFocusEffect(
+    useCallback(() => {
+      const getItem = async () => {
+        const getItemData = await fetch(`${baseUrl}/item/${item.itemId}`);
+        const data = await getItemData.json();
+        if (data) {
+          setItemData(data);
+        }
+      };
+
+      const getChat = async () => {
+        const getChatData = await fetch(
+          `${baseUrl}/message/openRoom/${item.roomId}`
+        );
+        const data = await getChatData.json();
+        setChatData(data);
+      };
+
+      getItem();
+      getChat();
+    }, [setItemData, setChatData])
+  );
+
   function sendChat() {
-    if (inpChat) {
-      setChatData([
-        ...chatData,
-        {
-          userId: 1,
-          text: inpChat,
-          createdAt: Number(new Date()),
+    const chatHandler = async () => {
+      const data = {
+        text: inpChat,
+        user: user.user._id,
+        created_at: Date.now(),
+        isReaded: 0,
+      };
+      const addChat = await fetch(`${baseUrl}/message/${chatData._id}`, {
+        method: "POST",
+        body: JSON.stringify(data),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `bearer ${user.token}`,
         },
-      ]);
+      });
+
+      const json = await addChat.json();
+      setChatData(json);
       setInpChat("");
-      Keyboard.dismiss();
-      flatListRef.current.scrollToEnd();
-    }
+    };
+
+    chatHandler();
+
+    Keyboard.dismiss();
+    flatListRef.current.scrollToEnd();
   }
 
   function testEnter(e) {
@@ -40,100 +85,108 @@ const ChatScreen = ({ navigation, route }) => {
   return (
     <View style={styles.container}>
       <View style={styles.navigationBack}>
-        <Pressable onPress={() => navigation.goBack()}>
+        <Pressable onPress={() => props.navigation.goBack()}>
           <Icon type="material-community" name="arrow-left" size={25} />
         </Pressable>
       </View>
-      <View style={styles.itemRequestedContainer}>
-        <View style={styles.itemRequested}>
-          <Image
-            source={route.params.data.images[0]}
-            style={{ width: 35, height: 35, resizeMode: "cover" }}
-          />
-          <View style={styles.pickUpDetail}>
-            <Text style={{ fontSize: 12, fontWeight: "500" }}>
-              {route.params.data.itemName}
-            </Text>
-            <View style={styles.pickUp}>
-              <Icon
-                type="material-community"
-                name="alarm"
-                size={15}
-                color={colors.secondaryText}
-              />
-              <Text
-                style={{
-                  fontSize: 11,
-                  color: colors.secondaryText,
-                  marginLeft: 5,
-                  marginVertical: 5,
-                }}
-              >
-                Bisa diambil :
-              </Text>
-              <Text
-                style={{
-                  fontSize: 11,
-                  color: colors.primaryLogo,
-                  marginLeft: 5,
-                  marginVertical: 5,
-                }}
-              >
-                Kapan saja
-              </Text>
-            </View>
-          </View>
-        </View>
-      </View>
 
-      <View style={styles.chatContainer}>
-        {chatData && (
-          <FlatList
-            ref={flatListRef}
-            showsVerticalScrollIndicator={false}
-            initialScrollIndex={chatData.length - 1}
-            data={chatData}
-            renderItem={({ item, index }) => {
-              const owner = item.userId == 1;
-              return <Chat owner={owner} data={item} />;
-            }}
-            ListHeaderComponent={
-              <View style={styles.ownerDetail}>
-                <View style={styles.profileOwner}>
-                  <Image
-                    source={route.params.data.userAva}
-                    style={styles.ownerImage}
-                  />
-                </View>
-                <Text
-                  style={{ fontSize: 14, marginTop: 10, fontWeight: "500" }}
-                >
-                  {route.params.data.username}
+      {itemData ? (
+        <>
+          <View style={styles.itemRequestedContainer}>
+            <View style={styles.itemRequested}>
+              <Image
+                source={{ uri: itemData.item_pics[0] }}
+                style={{ width: 35, height: 35, resizeMode: "cover" }}
+              />
+              <View style={styles.pickUpDetail}>
+                <Text style={{ fontSize: 12, fontWeight: "500" }}>
+                  {itemData.item_name}
                 </Text>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    marginTop: 5,
-                  }}
-                >
+                <View style={styles.pickUp}>
                   <Icon
                     type="material-community"
-                    name="map-marker-outline"
+                    name="alarm"
                     size={15}
-                    color={"#BDBDBD"}
+                    color={colors.secondaryText}
                   />
                   <Text
-                    style={{ fontSize: 10, marginLeft: 4, color: "#BDBDBD" }}
+                    style={{
+                      fontSize: 11,
+                      color: colors.secondaryText,
+                      marginLeft: 5,
+                      marginVertical: 5,
+                    }}
                   >
-                    1km dari lokasi kamu
+                    Bisa diambil :
+                  </Text>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      color: colors.primaryLogo,
+                      marginLeft: 5,
+                      marginVertical: 5,
+                    }}
+                  >
+                    Kapan saja!
                   </Text>
                 </View>
               </View>
-            }
-          />
-        )}
-      </View>
+            </View>
+          </View>
+
+          <View style={styles.chatContainer}>
+            <FlatList
+              ref={flatListRef}
+              showsVerticalScrollIndicator={false}
+              initialScrollIndex={chatData.length - 1}
+              data={chatData.chats}
+              renderItem={(e) => {
+                return <Chat data={e} />;
+              }}
+              ListHeaderComponent={
+                <View style={styles.ownerDetail}>
+                  <View style={styles.profileOwner}>
+                    <Image
+                      source={{ uri: itemData.user.avatar }}
+                      style={styles.ownerImage}
+                    />
+                  </View>
+                  <Text
+                    style={{ fontSize: 14, marginTop: 10, fontWeight: "500" }}
+                  >
+                    {itemData.user.username}
+                  </Text>
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      marginTop: 5,
+                    }}
+                  >
+                    <Icon
+                      type="material-community"
+                      name="map-marker-outline"
+                      size={15}
+                      color={"#BDBDBD"}
+                    />
+                    <Text
+                      style={{ fontSize: 10, marginLeft: 4, color: "#BDBDBD" }}
+                    >
+                      1km dari lokasi kamu
+                    </Text>
+                  </View>
+                </View>
+              }
+            />
+          </View>
+        </>
+      ) : (
+        <View
+          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+        >
+          <ActivityIndicator size={"large"} color={colors.primaryLogo} />
+        </View>
+      )}
 
       <View style={styles.inputChatContainer}>
         <TextInput
@@ -145,7 +198,7 @@ const ChatScreen = ({ navigation, route }) => {
           onChangeText={(e) => setInpChat(e)}
         />
         <Pressable
-          onPress={() => sendChat()}
+          onPress={sendChat}
           style={{
             marginLeft: 10,
             backgroundColor: colors.primaryText,

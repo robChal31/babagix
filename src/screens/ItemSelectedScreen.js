@@ -11,20 +11,168 @@ import React, { useEffect, useState } from "react";
 import ImageSlider from "../components/ImageSlider";
 import { Icon } from "react-native-elements";
 import { colors, gap, shadow } from "../global";
-import { MapViews } from "../components";
+import { DeleteItem, MapViews } from "../components";
 import { relativeTime } from "../helpers";
-import * as actions from "../../Redux/actions/savedActions";
-import { connect } from "react-redux";
 import Toast from "react-native-toast-message";
+import baseUrl from "../../assets/common/baseUrl";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 const { width, height } = Dimensions.get("window");
 const ItemSelectedScreen = (props) => {
+  const [saved, setSaved] = useState([]);
+  const [loved, setLoved] = useState([]);
+  const [countLoved, setCountLoved] = useState(0);
+  const { user } = useAuthContext();
   const item = props.route.params.data;
-  const [saved, setSaved] = useState(isSaved());
+
+  useEffect(() => {
+    const isSaved = async () => {
+      const checkIsSaved = await fetch(
+        `${baseUrl}/item/getOneSaved?userId=${user.user._id}&itemId=${item._id}`,
+        {
+          method: "GET",
+        }
+      );
+
+      const response = await checkIsSaved.json();
+      setSaved(() => response);
+    };
+
+    const isLoved = async () => {
+      const checkIsLoved = await fetch(
+        `${baseUrl}/item/isLoved?userId=${user.user._id}&itemId=${item._id}`,
+        {
+          method: "GET",
+        }
+      );
+
+      const response = await checkIsLoved.json();
+      setCountLoved(response.countLoved);
+      setLoved(response.isLoved);
+    };
+
+    isSaved();
+    isLoved();
+  }, [setSaved, setLoved, setCountLoved]);
 
   function isSaved() {
-    return props.savedItem.filter((e) => e._id == item._id);
+    if (saved.length) {
+      const removeSavedItem = async () => {
+        const rmSaved = await fetch(`${baseUrl}/item/removeSaved`, {
+          method: "PUT",
+          body: JSON.stringify({ savedId: saved[0], userId: user.user._id }),
+          headers: {
+            Authorization: `bearer ${user.token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const rmResponse = await rmSaved.json();
+        Toast.show({
+          topOffset: 40,
+          type: "success",
+          text1: `${item.item_name} dihapus dari item tersimpan`,
+        });
+        setSaved(rmResponse);
+      };
+      removeSavedItem();
+    }
+
+    if (!saved.length) {
+      const addSavedItem = async () => {
+        const data = { itemId: item._id, userId: user.user._id };
+
+        const add = await fetch(`${baseUrl}/item/addSaved`, {
+          method: "PUT",
+          body: JSON.stringify(data),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${user.token}`,
+          },
+        });
+        const json = await add.json();
+        Toast.show({
+          topOffset: 40,
+          type: "success",
+          text1: `${item.item_name} ditambahkan ke item tersimpan`,
+        });
+        setSaved(json);
+      };
+
+      addSavedItem();
+    }
   }
+
+  const checkRoom = () => {
+    const roomHandler = async () => {
+      const roomName = {
+        ownerId: item.user._id,
+        requesterId: user.user._id,
+        item: item._id,
+      };
+      const roomString = `${roomName.ownerId}-${roomName.requesterId}-${roomName.item}`;
+      const isRoom = await fetch(`${baseUrl}/message/getARoom/${roomString}`);
+      const isRoomValid = await isRoom.json();
+      if (!isRoomValid) {
+        const makeRoom = await fetch(`${baseUrl}/message`, {
+          method: "POST",
+          body: JSON.stringify(roomName),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${user.token}`,
+          },
+        });
+
+        const json = await makeRoom.json();
+        props.navigation.navigate("ChatScreen", {
+          data: { itemId: json.data.item, roomId: json.data._id },
+        });
+      }
+      if (isRoomValid) {
+        props.navigation.navigate("ChatScreen", {
+          data: { itemId: isRoomValid.item, roomId: isRoomValid._id },
+        });
+      }
+    };
+
+    roomHandler();
+  };
+
+  const isLoved = () => {
+    if (loved.length) {
+      const removeLovedItem = async () => {
+        const rmSaved = await fetch(`${baseUrl}/item/removeLoved`, {
+          method: "PUT",
+          body: JSON.stringify({ itemId: item._id, userId: user.user._id }),
+          headers: {
+            Authorization: `bearer ${user.token}`,
+            "Content-Type": "application/json",
+          },
+        });
+        const rmResponse = await rmSaved.json();
+        setCountLoved(rmResponse.countLoved);
+        setLoved(rmResponse.rmLoved);
+      };
+      removeLovedItem();
+    }
+
+    if (!loved.length) {
+      const addLovedItem = async () => {
+        const addLove = await fetch(`${baseUrl}/item/addLoved`, {
+          method: "PUT",
+          body: JSON.stringify({ itemId: item._id, userId: user.user._id }),
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `bearer ${user.token}`,
+          },
+        });
+        const json = await addLove.json();
+        setLoved(json.addToLoved);
+        setCountLoved(json.countLoved);
+      };
+
+      addLovedItem();
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -39,46 +187,50 @@ const ItemSelectedScreen = (props) => {
       <ScrollView>
         <ImageSlider images={item.item_pics} />
 
-        <View style={styles.iconsContainer}>
+        <View
+          style={{
+            paddingVertical: 8,
+            flexDirection: "row",
+            paddingHorizontal: 20,
+            justifyContent: "space-between",
+            backgroundColor: "#E9E9E9",
+          }}
+        >
           <View style={styles.iconContainer}>
-            <Pressable>
+            <Pressable onPress={isLoved}>
               <Icon
                 type="material-community"
-                name={"cards-heart-outline"}
+                name={loved.length ? "cards-heart" : "cards-heart-outline"}
                 size={24}
                 color={colors.primaryLogo}
               />
             </Pressable>
-            <Text style={styles.likedText}>{item.loved.length}</Text>
-            <Pressable
-              onPress={() => {
-                console.log(saved);
-                if (saved.length) {
-                  props.removeItemFromSaved(item);
-                  Toast.show({
-                    topOffset: 40,
-                    type: "success",
-                    text1: `${item.item_name} berhasil dihapus`,
-                  });
-                  setSaved(() => []);
-                } else {
-                  props.addItemToSaved(item);
-                  Toast.show({
-                    topOffset: 40,
-                    type: "success",
-                    text1: `${item.item_name} berhasil ditambahkan`,
-                  });
-                  setSaved(() => [1]);
-                }
-              }}
-            >
-              <Icon
-                type="material-community"
-                name={saved.length ? "bookmark" : "bookmark-outline"}
-                size={24}
-                color={colors.primaryLogo}
+            <Text style={styles.likedText}>{countLoved}</Text>
+            {item.user._id !== user.user._id && (
+              <Pressable
+                onPress={() => {
+                  isSaved();
+                }}
+              >
+                <Icon
+                  type="material-community"
+                  name={saved.length ? "bookmark" : "bookmark-outline"}
+                  size={24}
+                  color={colors.primaryLogo}
+                />
+              </Pressable>
+            )}
+          </View>
+          <View>
+            {item.user._id === user.user._id && (
+              <DeleteItem
+                data={{
+                  itemId: item._id,
+                  user: { userId: user.user._id, token: user.token },
+                  navigation: props.navigation.navigate,
+                }}
               />
-            </Pressable>
+            )}
           </View>
         </View>
         <View style={styles.detailItem}>
@@ -119,32 +271,18 @@ const ItemSelectedScreen = (props) => {
           />
         </View>
       </ScrollView>
-      <Pressable
-        onPress={() => props.navigation.navigate("ChatScreen", { data: item })}
-      >
-        <View style={styles.chatButtonContainer}>
-          <Text style={styles.chatButtonText}>Kirim pesan permintaan</Text>
-        </View>
-      </Pressable>
+      {item.user._id !== user.user._id && (
+        <Pressable onPress={() => checkRoom()}>
+          <View style={styles.chatButtonContainer}>
+            <Text style={styles.chatButtonText}>Kirim pesan permintaan</Text>
+          </View>
+        </Pressable>
+      )}
     </View>
   );
 };
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    addItemToSaved: (item) => dispatch(actions.addToSaved(item)),
-    removeItemFromSaved: (item) => dispatch(actions.removeFromSaved(item)),
-  };
-};
-
-const mapStateToProps = (state) => {
-  const { savedItem } = state;
-  return {
-    savedItem: savedItem,
-  };
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(ItemSelectedScreen);
+export default ItemSelectedScreen;
 
 const styles = StyleSheet.create({
   container: {
@@ -212,7 +350,6 @@ const styles = StyleSheet.create({
   iconsContainer: {
     flexDirection: "row",
     paddingHorizontal: 15,
-    backgroundColor: "#E9E9E9",
     paddingVertical: 8,
   },
   iconContainer: {

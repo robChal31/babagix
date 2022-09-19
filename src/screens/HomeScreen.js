@@ -7,50 +7,71 @@ import {
 } from "react-native";
 import * as React from "react";
 import { useFocusEffect } from "@react-navigation/native";
-import {
-  CardItem,
-  DrawerNav,
-  Header,
-  HomeScreenNavigationHeader,
-} from "../components";
+import { CardItem, Header, HomeScreenNavigationHeader } from "../components";
 import { colors, gap } from "../global";
 import baseUrl from "../../assets/common/baseUrl";
 import axios from "axios";
+import * as Location from "expo-location";
+import { useAuthContext } from "../../hooks/useAuthContext";
+import { useLocationContext } from "../../hooks/useLocationContext";
 
 const HomeScreen = (props) => {
   const [dataRendered, setDataRendered] = React.useState([]);
   const [category, setCategory] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+  const [userLocation, setUserLocation] = React.useState([]);
+
+  const { user } = useAuthContext();
 
   useFocusEffect(
     React.useCallback(() => {
-      axios
-        .get(`${baseUrl}/item`)
-        .then((res) => setDataRendered(res.data))
-        .catch((err) => err);
-      axios
-        .get(`${baseUrl}/category`)
-        .then((res) => setCategory(res.data))
-        .catch((err) => console.log(err));
-      setTimeout(() => {
+      (async () => {
+        let { status } = await Location.requestForegroundPermissionsAsync();
+        if (status !== "granted") {
+          setErrorMsg("Permission to access location was denied");
+          return;
+        }
+
+        let location = await Location.getCurrentPositionAsync({});
+        getItemFunc(location.coords);
+        setUserLocation(() => location.coords);
+      })();
+
+      //item
+      const getItemFunc = async (coords) => {
+        const getItem = await fetch(
+          `${baseUrl}/item?userId=${user.user._id}&long=${coords.longitude}&latt=${coords.latitude}`
+        );
+        const data = await getItem.json();
         setLoading(false);
-      }, 1000);
+        setDataRendered(data);
+      };
+      //category
+      const getCategoryFunc = async () => {
+        const getCategory = await fetch(`${baseUrl}/category`);
+        const json = await getCategory.json();
+        setCategory(json);
+      };
+
+      getCategoryFunc();
+
       return () => {
         setDataRendered([]);
         setLoading(true);
+        setUserLocation([]);
       };
-    }, [])
+    }, [setCategory, setDataRendered, setLoading, setUserLocation])
   );
 
   function filterData(itemsStatus, itemsCategory) {
-    axios(`${baseUrl}/item?isFree=${itemsStatus}&category=${itemsCategory}`)
-      .then((res) => setDataRendered(() => res.data))
-      .catch((err) => console.log(err));
+    if (userLocation.length) {
+      axios(
+        `${baseUrl}/item?isFree=${itemsStatus}&category=${itemsCategory}&userId=${user.user._id}&long=${userLocation.longitude}&latt=${userLocation.latitude}`
+      )
+        .then((res) => setDataRendered(() => res.data))
+        .catch((err) => console.log(err));
+    }
   }
-
-  const DrawerNavigation = () => {
-    return <DrawerNav navigation={props.navigation} />;
-  };
 
   return (
     <View style={styles.homeScreenContainer}>
@@ -75,7 +96,7 @@ const HomeScreen = (props) => {
         </View>
         {loading == false ? (
           <>
-            {!dataRendered && (
+            {!dataRendered.length && (
               <View>
                 <Text style={styles.emptyListItemMsg}>
                   Belum ada barang yang dibagikan disekitar kamu sekarang,
@@ -89,7 +110,7 @@ const HomeScreen = (props) => {
                 renderItem={(items, index) => {
                   return (
                     <CardItem
-                      data={items}
+                      data={{ ...items, userId: user.user._id }}
                       navigate={(screen, data) =>
                         props.navigation.navigate(screen, data)
                       }
@@ -151,6 +172,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     color: "#d3d3d3",
     paddingVertical: 20,
+    marginTop: 90,
   },
   loading: {
     flex: 1,

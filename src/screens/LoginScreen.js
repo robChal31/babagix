@@ -12,7 +12,7 @@ import { Error, Input, InputPassword } from "../components";
 import { Icon } from "react-native-elements";
 import { useLogin } from "../../hooks/useLogin";
 
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = (props) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const { errorInp, login, loading } = useLogin();
@@ -30,7 +30,7 @@ const LoginScreen = ({ navigation }) => {
             alignSelf: "flex-start",
             paddingHorizontal: 15,
           }}
-          onPress={() => navigation.goBack()}
+          onPress={() => props.navigation.goBack()}
         >
           <Icon
             type="material-community"
@@ -66,7 +66,7 @@ const LoginScreen = ({ navigation }) => {
           ) : (
             <Pressable
               style={styles.buttonSubmit}
-              onPress={() => login(email, password)}
+              onPress={() => login(email, password, props.navigation)}
             >
               <Text style={{ color: "#fff", fontWeight: "500" }}>Masuk</Text>
             </Pressable>
@@ -80,7 +80,9 @@ const LoginScreen = ({ navigation }) => {
               }}
             >
               <Text style={styles.registerLink}>Belum punya akun ? klik </Text>
-              <Pressable onPress={() => navigation.navigate("RegisterScreen")}>
+              <Pressable
+                onPress={() => props.navigation.navigate("RegisterScreen")}
+              >
                 <Text style={styles.registerLinkClick}>daftar</Text>
               </Pressable>
             </View>

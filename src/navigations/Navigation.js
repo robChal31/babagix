@@ -27,7 +27,7 @@ const Navigation = (props) => {
       >
         <Stack.Screen
           name="TabNavigation"
-          component={user ? TabNavigation : LoginScreen}
+          component={user ? TabNavigation : WelcomeScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="WelcomeScreen"
@@ -36,7 +36,7 @@ const Navigation = (props) => {
         <Stack.Screen name="MapScreen" component={MapScreen}></Stack.Screen>
         <Stack.Screen
           name="HomeScreen"
-          component={user ? HomeScreen : LoginScreen}
+          component={user ? TabNavigation : WelcomeScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="ItemSelectedScreen"

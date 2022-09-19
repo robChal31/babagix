@@ -1,16 +1,38 @@
 import { View, StyleSheet, Pressable, Dimensions, Text } from "react-native";
 import { Icon } from "react-native-elements";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { gap, colors } from "../global";
 import { connect } from "react-redux";
 import { SwipeListView } from "react-native-swipe-list-view";
 import Saved from "../components/saved";
+import baseUrl from "../../assets/common/baseUrl";
 
 import * as actions from "../../Redux/actions/savedActions";
+import { useAuthContext } from "../../hooks/useAuthContext";
 
 const { width, height } = Dimensions.get("window");
 
 const SavedScreen = (props) => {
+  const [saved, setSaved] = useState([]);
+
+  const { user } = useAuthContext();
+
+  useEffect(() => {
+    const isSaved = async () => {
+      const checkIsSaved = await fetch(
+        `${baseUrl}/item/getSavedItems?userId=${user.user._id}`,
+        {
+          method: "GET",
+        }
+      );
+
+      const response = await checkIsSaved.json();
+      console.log(response, "apasih");
+      setSaved(() => response);
+    };
+    isSaved();
+  }, [setSaved]);
+
   return (
     <View style={styles.container}>
       <View style={styles.navigationBack}>

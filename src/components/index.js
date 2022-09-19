@@ -9,6 +9,9 @@ import InputPassword from "./InputPassword";
 import Error from "./Error";
 import Logout from "./Logout";
 import Back from "./Back";
+import UserDetailUpload from "./UserDetailUpload";
+import EditProfile from "./EditProfile";
+import DeleteItem from "./DeleteItem";
 
 export {
   CardItem,
@@ -22,4 +25,7 @@ export {
   Error,
   Logout,
   Back,
+  UserDetailUpload,
+  EditProfile,
+  DeleteItem,
 };

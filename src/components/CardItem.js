@@ -13,6 +13,7 @@ import { colors, shadow } from "../global/styles";
 const { height, width } = Dimensions.get("window");
 
 const CardItem = (props) => {
+  const isLoved = props.data.item.loved.filter((e) => e == props.data.userId);
   return (
     <Pressable
       style={styles.cardItemContainer}
@@ -60,7 +61,7 @@ const CardItem = (props) => {
           <View style={styles.cardDetailItem}>
             <Icon
               type="material-community"
-              name="cards-heart-outline"
+              name={isLoved.length ? "cards-heart" : "cards-heart-outline"}
               size={15}
               color={colors.secondaryText2}
             />

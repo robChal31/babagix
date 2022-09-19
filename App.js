@@ -6,14 +6,17 @@ import store from "./Redux/store";
 
 //context api
 import { AuthContextProvider } from "./Context/AuthContext";
+import { LocationContextProvider } from "./Context/LocationContext";
 
 export default function App() {
   return (
     <AuthContextProvider>
-      <Provider store={store}>
-        <Navigation />
-        <Toast />
-      </Provider>
+      <LocationContextProvider>
+        <Provider store={store}>
+          <Navigation />
+          <Toast />
+        </Provider>
+      </LocationContextProvider>
     </AuthContextProvider>
   );
 }

@@ -9,7 +9,7 @@ export const useLogin = () => {
   const [loading, setLoading] = useState(false);
   const { dispatch } = useAuthContext();
 
-  const login = async (email, password) => {
+  const login = async (email, password, navigation) => {
     if (!email || !password) {
       setErrorInp("Mohon untuk mengisi e-mail dan password");
     } else {
@@ -36,6 +36,7 @@ export const useLogin = () => {
             text1: "Login berhasil",
             text2: json,
           });
+          navigation.navigate("HomeScreen");
         }
 
         if (!response.ok) {

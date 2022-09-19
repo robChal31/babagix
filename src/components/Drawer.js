@@ -44,7 +44,9 @@ const Drawer = (props) => {
             >
               <View style={styles.avaCont}>
                 <Image
-                  source={{ uri: user.user.avatar }}
+                  source={{
+                    uri: user.user.avatar,
+                  }}
                   style={styles.avatar}
                 />
               </View>

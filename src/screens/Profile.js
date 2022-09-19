@@ -15,6 +15,7 @@ import { useAuthContext } from "../../hooks/useAuthContext";
 import { useEffect } from "react";
 import baseUrl from "../../assets/common/baseUrl";
 import axios from "axios";
+import { EditProfile } from "../components";
 
 const numColumns = 3;
 const { width, height } = Dimensions.get("window");
@@ -24,21 +25,15 @@ const Profile = ({ navigation }) => {
   const [dataRendered, setDataRendered] = useState([]);
 
   useEffect(() => {
-    async function fetchData() {
-      const response = await fetch(`${baseUrl}/item/user/${user.user._id}`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
+    const fetchData = async () => {
+      const response = await fetch(`${baseUrl}/item/profile/${user.user._id}`);
       const json = await response.json();
       if (response.ok) {
         setDataRendered(json);
       }
-    }
+    };
     fetchData();
-  }, []);
+  }, [setDataRendered]);
 
   const { user } = useAuthContext();
 
@@ -155,13 +150,7 @@ const Profile = ({ navigation }) => {
             />
           </View>
         )}
-        {activeProfileScreen[1] && (
-          <View style={styles.settingScontainer}>
-            <View>
-              <TextInput value="Jhon Doe" style={styles.editInput} />
-            </View>
-          </View>
-        )}
+        {activeProfileScreen[1] && <EditProfile />}
       </View>
     </View>
   );
@@ -255,10 +244,6 @@ const styles = StyleSheet.create({
     width: width / 3 - 4,
     height: 130,
     margin: 2,
-  },
-  settingScontainer: {
-    paddingHorizontal: 15,
-    marginVertical: 20,
   },
   editInput: {
     paddingVertical: 3,

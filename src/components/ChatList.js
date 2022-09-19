@@ -11,18 +11,28 @@ import { colors } from "../global";
 import { relativeTime } from "../helpers";
 
 const { width, height } = Dimensions.get("window");
+
 const ChatList = (props) => {
   return (
     <Pressable
-      onPress={() => props.navigation("ChatScreen", { data: props.data })}
+      onPress={() =>
+        props.navigation("ChatScreen", {
+          data: { itemId: props.data.item._id, roomId: props.data._id },
+        })
+      }
     >
       <View style={styles.container}>
-        <Image source={props.data.avatar} style={styles.avaImage} />
+        <Image
+          source={{
+            uri: props.data.user.avatar,
+          }}
+          style={styles.avaImage}
+        />
         <View style={{ marginLeft: 10 }}>
-          <Text style={styles.userName}>{props.data.username}</Text>
+          <Text style={styles.userName}>{props.data.user.username}</Text>
           <View style={styles.chatDetail}>
             <Text numberOfLines={1} style={styles.chatText}>
-              {props.data.text}
+              {props.data.chats[props.data.chats.length - 1].text}
             </Text>
             <Text style={styles.chatTime}>
               {relativeTime(props.data.createdAt)}
