@@ -4,10 +4,9 @@ import { StyleSheet } from "react-native";
 import { colors, gap, itemDatas } from "../global";
 import { Icon } from "react-native-elements";
 import { CardItem } from "../components";
-import { searchedData } from "../helpers";
+import baseUrl from "../../assets/common/baseUrl";
 
-const SearchScreen = ({ navigation }) => {
-  const dataFetched = itemDatas;
+const SearchScreen = (props) => {
   const [searchInput, setSearchInput] = useState("");
   const [data, setData] = useState([]);
   const [noResult, setNoResult] = useState(false);
@@ -17,23 +16,25 @@ const SearchScreen = ({ navigation }) => {
     setData([]);
     setNoResult(false);
   }
-  const clearNoResult = useEffect(() => {
-    if (data.length > 0) {
-      setNoResult(false);
-    }
-  });
+
   function textInput(enteredText) {
     setSearchInput(enteredText);
   }
 
-  function searchThis() {
-    setData(searchedData(searchInput, dataFetched));
-    if (data.length < 1) {
+  const searchThis = async () => {
+    const fetchData = await fetch(
+      `${baseUrl}/item/search?itemName=${searchInput}`
+    );
+    const response = await fetchData.json();
+    if (!response.length) {
       setNoResult(true);
-    } else {
-      clearNoResult;
+      setData([]);
     }
-  }
+    if (response.length) {
+      setData(response);
+      setNoResult(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -55,7 +56,7 @@ const SearchScreen = ({ navigation }) => {
         <Pressable onPress={clearInput}>
           <Icon
             type="material-community"
-            name="alpha-x-circle"
+            name="close"
             size={25}
             color={"#BA3754"}
           />
@@ -67,18 +68,13 @@ const SearchScreen = ({ navigation }) => {
             <Text style={styles.searchResultText}>Hasil pencarian</Text>
             <FlatList
               data={data}
-              renderItem={(items, index) => {
+              renderItem={(items) => {
                 return (
-                  <CardItem
-                    data={items}
-                    navigate={(screen, data) =>
-                      navigation.navigate(screen, data)
-                    }
-                  />
+                  <CardItem data={items} navigate={props.navigation.navigate} />
                 );
               }}
-              keyExtractor={(item, index) => {
-                return item.id;
+              keyExtractor={(item) => {
+                return item._id;
               }}
             />
           </View>
@@ -130,5 +126,4 @@ const styles = StyleSheet.create({
     color: "#BCBBC2",
     marginBottom: 10,
   },
-  resultNotFoundContainer: {},
 });

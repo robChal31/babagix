@@ -24,19 +24,42 @@ const ChatList = (props) => {
       <View style={styles.container}>
         <Image
           source={{
-            uri: props.data.user.avatar,
+            uri: props.data.item.item_pics[0],
           }}
           style={styles.avaImage}
         />
         <View style={{ marginLeft: 10 }}>
-          <Text style={styles.userName}>{props.data.user.username}</Text>
+          <Text style={styles.userName}>{props.data.item.item_name}</Text>
           <View style={styles.chatDetail}>
             <Text numberOfLines={1} style={styles.chatText}>
               {props.data.chats[props.data.chats.length - 1].text}
             </Text>
             <Text style={styles.chatTime}>
-              {relativeTime(props.data.createdAt)}
+              {relativeTime(
+                props.data.chats[props.data.chats.length - 1].created_at
+              )}
             </Text>
+          </View>
+          <View
+            style={{
+              marginVertical: 5,
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Text
+              style={{
+                fontSize: 9,
+                color: colors.primaryText,
+                marginRight: 10,
+              }}
+            >
+              {props.data.user.username}
+            </Text>
+            <Image
+              source={{ uri: props.data.user.avatar }}
+              style={{ width: 20, height: 20, borderRadius: 100 }}
+            />
           </View>
         </View>
       </View>

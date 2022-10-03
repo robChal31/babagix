@@ -10,6 +10,8 @@ import SavedScreen from "./SavedScreen";
 import SearchScreen from "./SearchScreen";
 import WelcomeScreen from "./WelcomeScreen";
 import UploadScreen from "./UploadScreen";
+import EditItem from "./EditItem";
+import SplashScreen from "./SplashScreen";
 
 export {
   ChatScreen,
@@ -24,4 +26,6 @@ export {
   SearchScreen,
   WelcomeScreen,
   UploadScreen,
+  EditItem,
+  SplashScreen,
 };

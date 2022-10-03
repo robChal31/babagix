@@ -22,7 +22,7 @@ import { useUploadItem } from "../../hooks/useUploadItem";
 import { useFocusEffect } from "@react-navigation/native";
 
 const { width, height } = Dimensions.get("window");
-const UploadScreen = (props) => {
+const EditItem = (props) => {
   const [itemName, setItemName] = useState("");
   const [desc, setDesc] = useState("");
   const [open, setOpen] = useState(false);
@@ -39,15 +39,24 @@ const UploadScreen = (props) => {
   const { user } = useAuthContext();
   const { fetchData, error, loading } = useUploadItem();
 
+  const item = props.route.params.data;
+
   useFocusEffect(
     useCallback(() => {
-      setItemName("");
-      setDesc("");
-      setCategoryValue("");
-      setIsFreeValue("");
+      setItemName(item.item_name);
+      setDesc(item.desc);
+      setCategoryValue(item.category._id);
+      setIsFreeValue(item.is_free);
       setIsFree([]);
       setExpiredIn("");
-      setImages([]);
+      setImages((curr) => {
+        return item.item_pics.map((image) => {
+          return {
+            uri: image,
+          };
+        });
+      });
+      setCategories(category);
       setInpError("");
       const fetchCategory = async () => {
         const response = await fetch(`${baseUrl}/category`);
@@ -57,6 +66,16 @@ const UploadScreen = (props) => {
           const fdCId = data.filter((e) => e.value === "food");
           setCategories(data);
           setFoodCategoryId(fdCId[0]._id);
+          if (item.category._id === fdCId[0]._id) {
+            setIsFree([{ id: 1, isFree: "Gratis" }]);
+          }
+          if (item.category._id !== fdCId[0]._id) {
+            setExpiredIn("");
+            setIsFree([
+              { id: 1, isFree: "Gratis" },
+              { id: 2, isFree: "Pinjamkan" },
+            ]);
+          }
         }
       };
       fetchCategory();
@@ -84,20 +103,21 @@ const UploadScreen = (props) => {
       location,
       user_id: user.user._id,
       images,
+      itemId: item._id,
     };
     if (foodCategoryId === categoryValue) {
       if (!expiredIn) {
-        setInpError("mohon mengisi semua field makanan");
+        setInpError("mohon mengisi semua field");
         return;
       }
       setInpError("");
     }
 
     if (!itemName || !desc || !categoryValue || !images) {
-      setInpError("mohon mengisi semua field error disini");
+      setInpError("mohon mengisi semua field");
     }
     if (!inpError && categoryValue) {
-      fetchData(data, props.navigation, "upload");
+      fetchData(data, props.navigation, "edit");
     }
   };
 
@@ -272,7 +292,7 @@ const UploadScreen = (props) => {
   );
 };
 
-export default UploadScreen;
+export default EditItem;
 
 const styles = StyleSheet.create({
   container: {
@@ -289,7 +309,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 10,
+    marginTop: 20,
   },
   errorText: {
     fontSize: 12,

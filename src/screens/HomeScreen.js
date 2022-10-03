@@ -13,13 +13,12 @@ import baseUrl from "../../assets/common/baseUrl";
 import axios from "axios";
 import * as Location from "expo-location";
 import { useAuthContext } from "../../hooks/useAuthContext";
-import { useLocationContext } from "../../hooks/useLocationContext";
 
 const HomeScreen = (props) => {
   const [dataRendered, setDataRendered] = React.useState([]);
   const [category, setCategory] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
-  const [userLocation, setUserLocation] = React.useState([]);
+  const [userLocation, setUserLocation] = React.useState({});
 
   const { user } = useAuthContext();
 
@@ -64,7 +63,7 @@ const HomeScreen = (props) => {
   );
 
   function filterData(itemsStatus, itemsCategory) {
-    if (userLocation.length) {
+    if (userLocation) {
       axios(
         `${baseUrl}/item?isFree=${itemsStatus}&category=${itemsCategory}&userId=${user.user._id}&long=${userLocation.longitude}&latt=${userLocation.latitude}`
       )

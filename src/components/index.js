@@ -12,6 +12,7 @@ import Back from "./Back";
 import UserDetailUpload from "./UserDetailUpload";
 import EditProfile from "./EditProfile";
 import DeleteItem from "./DeleteItem";
+import UploadImage from "./UploadImage";
 
 export {
   CardItem,
@@ -28,4 +29,5 @@ export {
   UserDetailUpload,
   EditProfile,
   DeleteItem,
+  UploadImage,
 };

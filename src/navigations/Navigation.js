@@ -13,6 +13,8 @@ import {
   SavedScreen,
   Profile,
   MapScreen,
+  EditItem,
+  SplashScreen,
 } from "../screens";
 import { useAuthContext } from "../../hooks/useAuthContext";
 
@@ -23,32 +25,35 @@ const Navigation = (props) => {
     <NavigationContainer>
       <Stack.Navigator
         screenOptions={{ headerShown: false }}
-        initialRouteName={WelcomeScreen}
+        initialRouteName={SplashScreen}
       >
         <Stack.Screen
           name="TabNavigation"
-          component={user ? TabNavigation : WelcomeScreen}
+          component={user ? TabNavigation : SplashScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="WelcomeScreen"
-          component={WelcomeScreen}
+          component={user ? HomeScreen : WelcomeScreen}
         ></Stack.Screen>
-        <Stack.Screen name="MapScreen" component={MapScreen}></Stack.Screen>
+        <Stack.Screen
+          name="MapScreen"
+          component={user ? MapScreen : SplashScreen}
+        ></Stack.Screen>
         <Stack.Screen
           name="HomeScreen"
-          component={user ? TabNavigation : WelcomeScreen}
+          component={user ? TabNavigation : SplashScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="ItemSelectedScreen"
-          component={user ? ItemSelectedScreen : LoginScreen}
+          component={user ? ItemSelectedScreen : SplashScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="SearchScreen"
-          component={user ? SearchScreen : LoginScreen}
+          component={user ? SearchScreen : SplashScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="ChatScreen"
-          component={user ? ChatScreen : LoginScreen}
+          component={user ? ChatScreen : SplashScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="LoginScreen"
@@ -56,15 +61,19 @@ const Navigation = (props) => {
         ></Stack.Screen>
         <Stack.Screen
           name="SavedScreen"
-          component={user ? SavedScreen : LoginScreen}
+          component={user ? SavedScreen : SplashScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="Profile"
-          component={user ? Profile : LoginScreen}
+          component={user ? Profile : SplashScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="RegisterScreen"
           component={user ? HomeScreen : RegisterScreen}
+        ></Stack.Screen>
+        <Stack.Screen
+          name="EditItemScreen"
+          component={user ? EditItem : SplashScreen}
         ></Stack.Screen>
       </Stack.Navigator>
       <StatusBar style="auto" />

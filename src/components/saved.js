@@ -6,7 +6,7 @@ import {
   Pressable,
   Dimensions,
 } from "react-native";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { colors, shadow } from "../global/styles";
 
 const { width, height } = Dimensions.get("window");

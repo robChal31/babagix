@@ -9,11 +9,21 @@ import {
 import React from "react";
 import { Icon } from "react-native-elements";
 import { colors, shadow } from "../global/styles";
+import { calcCrow, relativeTime } from "../helpers";
+import { useLocationContext } from "../../hooks/useLocationContext";
 
 const { height, width } = Dimensions.get("window");
 
 const CardItem = (props) => {
   const isLoved = props.data.item.loved.filter((e) => e == props.data.userId);
+  const [longitude, latitude] = props.data.item.location.coordinates;
+  const { location } = useLocationContext();
+  const getDist = calcCrow(
+    longitude,
+    latitude,
+    location.longitude,
+    location.latitude
+  );
   return (
     <Pressable
       style={styles.cardItemContainer}
@@ -50,12 +60,12 @@ const CardItem = (props) => {
             />
             <Text
               style={{
-                fontSize: 11,
+                fontSize: 10,
                 color: colors.secondaryText2,
                 marginLeft: 2,
               }}
             >
-              {/* {props.data.item.location} */}
+              {getDist}
             </Text>
           </View>
           <View style={styles.cardDetailItem}>
@@ -63,11 +73,11 @@ const CardItem = (props) => {
               type="material-community"
               name={isLoved.length ? "cards-heart" : "cards-heart-outline"}
               size={15}
-              color={colors.secondaryText2}
+              color={isLoved.length ? "#E62F2F" : colors.secondaryText2}
             />
             <Text
               style={{
-                fontSize: 11,
+                fontSize: 10,
                 color: colors.secondaryText2,
                 marginLeft: 2,
               }}
@@ -76,13 +86,30 @@ const CardItem = (props) => {
             </Text>
           </View>
           <View style={styles.cardDetailItem}>
+            <Icon
+              type="material-community"
+              name={"clock-outline"}
+              size={15}
+              color={colors.secondaryText}
+            />
             <Text
               style={{
-                fontSize: 11,
+                fontSize: 10,
+                marginLeft: 2,
+                color: colors.secondaryText,
+              }}
+            >
+              {relativeTime(new Date(props.data.item.createdAt).getTime())}
+            </Text>
+          </View>
+          <View style={styles.cardDetailItem}>
+            <Text
+              style={{
+                fontSize: 10,
                 color:
-                  props.data.item.is_free == "0"
-                    ? colors.secondaryText2
-                    : colors.primaryLogo,
+                  props.data.item.is_free == "1"
+                    ? colors.primaryLogo
+                    : "#2E77B6",
                 marginLeft: 2,
               }}
             >
@@ -109,10 +136,11 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     marginVertical: 5,
     width: width - 40,
+    maxWidth: width - 40,
   },
   imageCard: {
-    width: 110,
-    height: 100,
+    width: 90,
+    height: 90,
     resizeMode: "cover",
     marginRight: 15,
   },

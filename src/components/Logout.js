@@ -48,8 +48,15 @@ const Logout = () => {
         onPress={() => setModalVisible(true)}
         style={styles.logoutCont}
       >
-        <Icon type="material-community" name="logout-variant" size={25} />
-        <Text style={{ marginLeft: 10 }}>Logout</Text>
+        <Icon
+          type="material-community"
+          name="logout-variant"
+          size={25}
+          color={"#327D3E"}
+        />
+        <Text style={{ marginLeft: 10, color: "#327D3E", fontSize: 13 }}>
+          Logout
+        </Text>
       </Pressable>
     </View>
   );

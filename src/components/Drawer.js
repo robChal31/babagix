@@ -39,7 +39,7 @@ const Drawer = (props) => {
               style={styles.navCont}
               onPress={() => {
                 setModalVisible(false);
-                props.navigation.navigate("Profile");
+                props.navigation.navigate("Profile", { data: user.user._id });
               }}
             >
               <View style={styles.avaCont}>
@@ -51,8 +51,13 @@ const Drawer = (props) => {
                 />
               </View>
               <Text
-                numberOfLines={1}
-                style={{ fontWeight: "400", fontSize: 15 }}
+                numberOfLines={2}
+                style={{
+                  fontWeight: "bold",
+                  fontSize: 14,
+                  color: "#232924",
+                  paddingRight: 8,
+                }}
               >
                 {user.user.username}
               </Text>
@@ -70,7 +75,7 @@ const Drawer = (props) => {
                 name="bookmark-outline"
                 size={25}
               />
-              <Text style={{ marginLeft: 10 }}>Tersimpan</Text>
+              <Text style={{ marginLeft: 10, fontSize: 13 }}>Tersimpan</Text>
             </Pressable>
 
             <Logout />
@@ -92,13 +97,22 @@ const styles = StyleSheet.create({
     height: height,
     left: width - 200,
     marginTop: 15,
-    backgroundColor: "#ECEAEA",
+    backgroundColor: "#F0F3EF",
     borderRadius: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.34,
+    shadowRadius: 6.27,
+
+    elevation: 10,
   },
   navCont: {
     flexDirection: "row",
     alignItems: "center",
-    width: "100%",
+    width: "80%",
     marginVertical: 10,
   },
   avaCont: {

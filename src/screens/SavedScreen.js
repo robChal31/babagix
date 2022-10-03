@@ -27,7 +27,6 @@ const SavedScreen = (props) => {
       );
 
       const response = await checkIsSaved.json();
-      console.log(response, "apasih");
       setSaved(() => response);
     };
     isSaved();
@@ -42,16 +41,11 @@ const SavedScreen = (props) => {
         <Text style={styles.header}>Tersimpan</Text>
       </View>
 
-      {props.savedItem.length ? (
+      {saved ? (
         <SwipeListView
-          data={props.savedItem}
+          data={saved}
           renderItem={(items) => (
-            <Saved
-              data={items}
-              navigate={(screen, data) =>
-                props.navigation.navigate(screen, data)
-              }
-            />
+            <Saved data={items} navigate={props.navigation.navigate} />
           )}
           renderHiddenItem={(data) => {
             return (

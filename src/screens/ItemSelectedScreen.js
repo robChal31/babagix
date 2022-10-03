@@ -187,22 +187,14 @@ const ItemSelectedScreen = (props) => {
       <ScrollView>
         <ImageSlider images={item.item_pics} />
 
-        <View
-          style={{
-            paddingVertical: 8,
-            flexDirection: "row",
-            paddingHorizontal: 20,
-            justifyContent: "space-between",
-            backgroundColor: "#E9E9E9",
-          }}
-        >
+        <View style={styles.iconMainContainer}>
           <View style={styles.iconContainer}>
             <Pressable onPress={isLoved}>
               <Icon
                 type="material-community"
                 name={loved.length ? "cards-heart" : "cards-heart-outline"}
                 size={24}
-                color={colors.primaryLogo}
+                color={loved.length ? "#E62F2F" : colors.primaryLogo}
               />
             </Pressable>
             <Text style={styles.likedText}>{countLoved}</Text>
@@ -223,13 +215,29 @@ const ItemSelectedScreen = (props) => {
           </View>
           <View>
             {item.user._id === user.user._id && (
-              <DeleteItem
-                data={{
-                  itemId: item._id,
-                  user: { userId: user.user._id, token: user.token },
-                  navigation: props.navigation.navigate,
-                }}
-              />
+              <View style={{ flexDirection: "row" }}>
+                <Pressable
+                  style={{ marginRight: 10 }}
+                  onPress={() => {
+                    props.navigation.navigate("EditItemScreen", { data: item });
+                  }}
+                >
+                  <Icon
+                    type="material-community"
+                    name={"pencil-outline"}
+                    size={24}
+                    color={colors.primaryLogo}
+                  />
+                </Pressable>
+
+                <DeleteItem
+                  data={{
+                    itemId: item._id,
+                    user: { userId: user.user._id, token: user.token },
+                    navigation: props.navigation.navigate,
+                  }}
+                />
+              </View>
             )}
           </View>
         </View>
@@ -251,7 +259,7 @@ const ItemSelectedScreen = (props) => {
                 color={colors.alernative}
               />
               <Text style={styles.timeDetail}>
-                ditambahkan {relativeTime(item.created_t)}
+                ditambahkan {relativeTime(new Date(item.createdAt).getTime())}
               </Text>
             </View>
           </View>
@@ -263,8 +271,8 @@ const ItemSelectedScreen = (props) => {
           <Text style={styles.mapHeaderText}>Perkiraan Lokasi</Text>
           <MapViews
             region={{
-              longitude: 105.897132,
-              latitude: -6.372833,
+              longitude: item.location.coordinates[0],
+              latitude: item.location.coordinates[1],
               latitudeDelta: 0.01,
               longitudeDelta: 0.01,
             }}
@@ -385,5 +393,12 @@ const styles = StyleSheet.create({
     fontWeight: "500",
     color: "#fff",
     textAlign: "center",
+  },
+  iconMainContainer: {
+    paddingVertical: 8,
+    flexDirection: "row",
+    paddingHorizontal: 20,
+    justifyContent: "space-between",
+    backgroundColor: "#E9E9E9",
   },
 });

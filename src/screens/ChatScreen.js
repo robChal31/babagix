@@ -73,15 +73,14 @@ const ChatScreen = (props) => {
       setInpChat("");
     };
 
-    chatHandler();
+    if (inpChat) {
+      chatHandler();
+    }
 
     Keyboard.dismiss();
     flatListRef.current.scrollToEnd();
   }
 
-  function testEnter(e) {
-    console.log(e.nativeEvent.key === "Done");
-  }
   return (
     <View style={styles.container}>
       <View style={styles.navigationBack}>
@@ -151,18 +150,8 @@ const ChatScreen = (props) => {
                       style={styles.ownerImage}
                     />
                   </View>
-                  <Text
-                    style={{ fontSize: 14, marginTop: 10, fontWeight: "500" }}
-                  >
-                    {itemData.user.username}
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      marginTop: 5,
-                    }}
-                  >
+                  <Text style={styles.username}>{itemData.user.username}</Text>
+                  <View style={styles.locationDist}>
                     <Icon
                       type="material-community"
                       name="map-marker-outline"
@@ -181,9 +170,7 @@ const ChatScreen = (props) => {
           </View>
         </>
       ) : (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
+        <View style={styles.loadingCont}>
           <ActivityIndicator size={"large"} color={colors.primaryLogo} />
         </View>
       )}
@@ -193,21 +180,9 @@ const ChatScreen = (props) => {
           placeholder="ketik pesan"
           style={styles.inputChat}
           value={inpChat}
-          on
-          onKeyPress={testEnter}
           onChangeText={(e) => setInpChat(e)}
         />
-        <Pressable
-          onPress={sendChat}
-          style={{
-            marginLeft: 10,
-            backgroundColor: colors.primaryText,
-            padding: 8,
-            borderRadius: 100,
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
+        <Pressable onPress={sendChat} style={styles.sendChatButt}>
           <Icon
             type="material-community"
             name="send"
@@ -265,14 +240,32 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   profileOwner: {
-    width: 50,
-    height: 50,
-    ...shadow,
+    width: 60,
+    height: 60,
     borderWidth: 0.5,
     borderColor: colors.secondaryText,
     borderRadius: 100,
+    backgroundColor: "#eee",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+
+    elevation: 5,
   },
-  ownerImage: { width: 50, height: 50, resizeMode: "cover", borderRadius: 100 },
+  ownerImage: {
+    width: 50,
+    height: 50,
+    resizeMode: "cover",
+    borderRadius: 100,
+    backgroundColor: "#eee",
+  },
   chatContainer: {
     paddingHorizontal: 15,
     marginTop: 10,
@@ -292,4 +285,19 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     flex: 1,
   },
+  sendChatButt: {
+    marginLeft: 10,
+    backgroundColor: colors.primaryText,
+    padding: 8,
+    borderRadius: 100,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingCont: { flex: 1, justifyContent: "center", alignItems: "center" },
+  locationDist: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 5,
+  },
+  username: { fontSize: 14, marginTop: 10, fontWeight: "500" },
 });
