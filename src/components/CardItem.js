@@ -5,14 +5,14 @@ import {
   StyleSheet,
   Pressable,
   Dimensions,
-} from "react-native";
-import React from "react";
-import { Icon } from "react-native-elements";
-import { colors, shadow } from "../global/styles";
-import { calcCrow, relativeTime } from "../helpers";
-import { useLocationContext } from "../../hooks/useLocationContext";
+} from 'react-native';
+import React from 'react';
+import { Icon } from 'react-native-elements';
+import { colors, shadow } from '../global/styles';
+import { calcCrow, relativeTime } from '../helpers';
+import { useLocationContext } from '../../hooks/useLocationContext';
 
-const { height, width } = Dimensions.get("window");
+const { height, width } = Dimensions.get('window');
 
 const CardItem = (props) => {
   const isLoved = props.data.item.loved.filter((e) => e == props.data.userId);
@@ -28,7 +28,7 @@ const CardItem = (props) => {
     <Pressable
       style={styles.cardItemContainer}
       onPress={() =>
-        props.navigate("ItemSelectedScreen", { data: props.data.item })
+        props.navigate('ItemSelectedScreen', { data: props.data.item })
       }
     >
       <Image
@@ -37,7 +37,7 @@ const CardItem = (props) => {
       />
       <View>
         <Text
-          style={{ fontSize: 14, fontWeight: "500", color: colors.primaryText }}
+          style={{ fontSize: 14, fontWeight: '500', color: colors.primaryText }}
         >
           {props.data.item.item_name}
         </Text>
@@ -71,9 +71,9 @@ const CardItem = (props) => {
           <View style={styles.cardDetailItem}>
             <Icon
               type="material-community"
-              name={isLoved.length ? "cards-heart" : "cards-heart-outline"}
+              name={isLoved.length ? 'cards-heart' : 'cards-heart-outline'}
               size={15}
-              color={isLoved.length ? "#E62F2F" : colors.secondaryText2}
+              color={isLoved.length ? '#E62F2F' : colors.secondaryText2}
             />
             <Text
               style={{
@@ -88,7 +88,7 @@ const CardItem = (props) => {
           <View style={styles.cardDetailItem}>
             <Icon
               type="material-community"
-              name={"clock-outline"}
+              name={'clock-outline'}
               size={15}
               color={colors.secondaryText}
             />
@@ -107,13 +107,13 @@ const CardItem = (props) => {
               style={{
                 fontSize: 10,
                 color:
-                  props.data.item.is_free == "1"
+                  props.data.item.is_free == '1'
                     ? colors.primaryLogo
-                    : "#2E77B6",
+                    : '#2E77B6',
                 marginLeft: 2,
               }}
             >
-              {props.data.item.is_free == "2" ? "Pinjam" : "Gratis"}
+              {props.data.item.is_free == '2' ? 'Pinjam' : 'Gratis'}
             </Text>
           </View>
         </View>
@@ -127,13 +127,13 @@ export default CardItem;
 const styles = StyleSheet.create({
   cardItemContainer: {
     ...shadow,
-    flexDirection: "row",
+    flexDirection: 'row',
     borderWidth: 1,
-    borderColor: "#e6e6e6",
+    borderColor: '#e6e6e6',
     borderRadius: 8,
-    overflow: "hidden",
-    alignItems: "center",
-    backgroundColor: "#fff",
+    overflow: 'hidden',
+    alignItems: 'center',
+    backgroundColor: '#fff',
     marginVertical: 5,
     width: width - 40,
     maxWidth: width - 40,
@@ -141,28 +141,28 @@ const styles = StyleSheet.create({
   imageCard: {
     width: 90,
     height: 90,
-    resizeMode: "cover",
+    resizeMode: 'cover',
     marginRight: 15,
   },
   userCardDetail: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 5,
   },
   avaImageCard: {
     borderRadius: 50,
     width: 20,
     height: 20,
-    resizeMode: "cover",
+    resizeMode: 'cover',
     marginRight: 8,
   },
   cardDetailItemContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginTop: 15,
   },
   cardDetailItem: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginRight: 10,
   },
 });

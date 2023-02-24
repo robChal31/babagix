@@ -4,15 +4,15 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
-} from "react-native";
-import * as React from "react";
-import { useFocusEffect } from "@react-navigation/native";
-import { CardItem, Header, HomeScreenNavigationHeader } from "../components";
-import { colors, gap } from "../global";
-import baseUrl from "../../assets/common/baseUrl";
-import axios from "axios";
-import * as Location from "expo-location";
-import { useAuthContext } from "../../hooks/useAuthContext";
+} from 'react-native';
+import * as React from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { CardItem, Header, HomeScreenNavigationHeader } from '../components';
+import { colors, gap } from '../global';
+import baseUrl from '../../assets/common/baseUrl';
+import axios from 'axios';
+import * as Location from 'expo-location';
+import { useAuthContext } from '../../hooks/useAuthContext';
 
 const HomeScreen = (props) => {
   const [dataRendered, setDataRendered] = React.useState([]);
@@ -26,14 +26,14 @@ const HomeScreen = (props) => {
     React.useCallback(() => {
       (async () => {
         let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== "granted") {
-          setErrorMsg("Permission to access location was denied");
+        if (status !== 'granted') {
+          setErrorMsg('Permission to access location was denied');
           return;
         }
 
         let location = await Location.getCurrentPositionAsync({});
-        getItemFunc(location.coords);
-        setUserLocation(() => location.coords);
+        getItemFunc(location?.coords);
+        setUserLocation(() => location?.coords);
       })();
 
       //item
@@ -58,6 +58,7 @@ const HomeScreen = (props) => {
         setDataRendered([]);
         setLoading(true);
         setUserLocation([]);
+        setCategory([]);
       };
     }, [setCategory, setDataRendered, setLoading, setUserLocation])
   );
@@ -72,6 +73,7 @@ const HomeScreen = (props) => {
     }
   }
 
+  // console.log(dataRendered);
   return (
     <View style={styles.homeScreenContainer}>
       {/* screen header */}
@@ -129,7 +131,7 @@ const HomeScreen = (props) => {
           </>
         ) : (
           <View style={styles.loading}>
-            <ActivityIndicator size={"large"} color={colors.primaryLogo} />
+            <ActivityIndicator size={'large'} color={colors.primaryLogo} />
           </View>
         )}
       </View>
@@ -142,10 +144,10 @@ export default HomeScreen;
 const styles = StyleSheet.create({
   homeScreenContainer: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     paddingTop: gap.statusBarHeight + 10,
     paddingHorizontal: 20,
-    position: "relative",
+    position: 'relative',
   },
   hSCardContainer: {
     paddingTop: 10,
@@ -154,7 +156,7 @@ const styles = StyleSheet.create({
   cardItemHeaderContainer: {
     borderColor: colors.primaryLogo,
     borderWidth: 1,
-    alignSelf: "flex-start",
+    alignSelf: 'flex-start',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 4,
@@ -163,19 +165,19 @@ const styles = StyleSheet.create({
   cardItemHeader: {
     fontSize: 13,
     color: colors.primaryLogo,
-    fontWeight: "500",
+    fontWeight: '500',
   },
   emptyListItemMsg: {
-    fontWeight: "500",
+    fontWeight: '500',
     fontSize: 18,
-    textAlign: "center",
-    color: "#d3d3d3",
+    textAlign: 'center',
+    color: '#d3d3d3',
     paddingVertical: 20,
     marginTop: 90,
   },
   loading: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

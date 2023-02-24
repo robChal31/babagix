@@ -29,7 +29,7 @@ const Navigation = (props) => {
       >
         <Stack.Screen
           name="TabNavigation"
-          component={user ? TabNavigation : SplashScreen}
+          component={user ? TabNavigation : WelcomeScreen}
         ></Stack.Screen>
         <Stack.Screen
           name="WelcomeScreen"

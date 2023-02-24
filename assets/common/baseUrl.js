@@ -1,6 +1,6 @@
-import { Platform } from "react-native";
+import { Platform } from 'react-native';
 
-const baseUrl = "https://babagix-server.herokuapp.com/api/v1";
+const baseUrl = 'http://10.0.2.2:4000/api/v1';
 
 // let baseUrl = "";
 
